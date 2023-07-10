@@ -1,0 +1,1 @@
+# ścieżka do pliku konfiguracyjnego php w kontenerze - /usr/local/etc/php/php.ini
