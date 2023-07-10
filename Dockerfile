@@ -9,16 +9,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /srv/app
 
 # pobranie instalatora rozszerzeń dla PHP - https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions
-# zastosowanie pobrania poprzez curl zapewnia najnowszą dostępną wersję instalatora
-RUN curl -sSLf \
-        -o /usr/local/bin/install-php-extensions \
-        https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions && \
-    chmod +x /usr/local/bin/install-php-extensions \
-    ;
+# pobranie instalatora z oficjalnego obrazu dockera
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 # instalacja rozszerzeń
 RUN set -eux; \
     install-php-extensions \
       gd \
-      xdebug \
     ;
