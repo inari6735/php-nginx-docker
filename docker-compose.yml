@@ -1,0 +1,36 @@
+version: "3.4"
+
+services:
+  php:
+    container_name: app_php
+    build:
+      context: .
+      target: app_php-production
+    restart: unless-stopped
+    networks:
+      - webapp
+
+  nginx:
+    container_name: app_nginx
+    build:
+      context: .
+      target: app_nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - php
+    environment:
+      NGINX_HOST: ${NGINX_HOST:-0.0.0.0}
+      NGINX_PORT: ${NGINX_PORT:-80}
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-localhost}
+    # aby wyłączyć tryb tylko do odczytu należy usunąć :ro
+    volumes:
+      - ./nginx/var/cache/nginx:/var/cache/nginx:ro
+      - ./nginx/var/cache/nginx-pid:/var/cache/nginx:ro
+      - ./docker/nginx/nginx.conf.template:/etc/nginx/templates
+    networks:
+      - webapp
+
+networks:
+  webapp:
+    driver: bridge
