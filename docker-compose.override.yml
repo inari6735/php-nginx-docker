@@ -16,4 +16,3 @@ services:
   nginx:
     volumes:
       - ./application/public:/var/www/public:ro
-      - ./docker/nginx/nginx.conf.template /etc/nginx/templates:ro

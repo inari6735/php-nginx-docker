@@ -13,8 +13,6 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /srv/app
 
-RUN mkdir -p /var/run/php-fpm-sockets
-
 # pobranie instalatora rozszerzeń dla PHP - https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions
 # pobranie instalatora z oficjalnego obrazu dockera
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
@@ -26,7 +24,6 @@ RUN set -eux; \
     ;
 
 COPY --link docker/php/production/php.ini /usr/local/etc/php/php.ini-production
-COPY --link docker/php/development/php.ini /usr/local/etc/php/php.ini-development
 
 COPY --link docker/php-fpm/php-fpm.d/process-pool.conf /usr/local/etc/php-fpm.d/process-pool.conf
 COPY --link docker/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.conf
@@ -38,7 +35,6 @@ COPY --link ./application ./
 
 ENTRYPOINT ["docker-entrypoint"]
 
-EXPOSE 9000
 CMD ["php-fpm"]
 
 # obraz do developmentu
@@ -46,12 +42,13 @@ FROM app_php-production AS app_php-development
 
 ENV APP_MODE=development
 
+COPY --link docker/php/development/php.ini /usr/local/etc/php/php.ini-development
+
 FROM nginx:stable-bullseye AS app_nginx
 
 WORKDIR /var/www
 
 COPY --from=app_php-production --link /srv/app/public public/
-COPY --link docker/nginx/nginx.conf.template /etc/nginx/templates
+COPY --link docker/nginx/templates /etc/nginx/templates
 
-EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
