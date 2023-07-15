@@ -2,30 +2,29 @@ version: "3.4"
 
 services:
   php:
-    container_name: app_php
     build:
       context: .
       target: app_php-production
     restart: unless-stopped
+#    volumes:
+#      - ./php/logs/:/var/log/
     networks:
       - webapp
 
   nginx:
-    container_name: app_nginx
     build:
       context: .
       target: app_nginx
     ports:
-      - "80:${NGINX_PORT:-80}"
+      - "${NGINX_HTTP_PORT:-80}:80"
     depends_on:
       - php
     environment:
-      NGINX_HOST: ${NGINX_HOST:-0.0.0.0}
-      NGINX_PORT: ${NGINX_PORT:-80}
       NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-localhost}
     volumes:
       - ./nginx/var/cache/nginx:/var/cache/nginx
       - ./nginx/var/cache/nginx-pid:/var/run
+      - ./nginx/var/log:/var/log/nginx/
       - ./docker/nginx/templates:/etc/nginx/templates
     networks:
       - webapp

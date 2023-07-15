@@ -6,10 +6,10 @@ services:
       target: app_php-development
     volumes:
       - ./application/:/srv/app
-      - ./docker/php/production/php.ini:/usr/local/etc/php/php.ini-production:ro
-      - ./docker/php/development/php.ini:/usr/local/etc/php/php.ini-development:ro
-      - ./docker/php-fpm/php-fpm.d/process-pool.conf:/usr/local/etc/php-fpm.d/process-pool.conf:ro
-      - ./docker/php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf:ro
+      - ./docker/php/config/production/php.ini:/usr/local/etc/php/php.ini-production:ro
+      - ./docker/php/config/development/php.ini:/usr/local/etc/php/php.ini-development:ro
+      - ./docker/php/php-fpm/php-fpm.d/process-pool.conf:/usr/local/etc/php-fpm.d/process-pool.conf:ro
+      - ./docker/php/php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf:ro
     extra_hosts:
       - host.docker.internal:host-gateway
 

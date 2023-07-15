@@ -23,26 +23,27 @@ RUN set -eux; \
       gd \
     ;
 
-COPY --link docker/php/production/php.ini /usr/local/etc/php/php.ini-production
+COPY --link docker/php/config/production/php.ini /usr/local/etc/php/php.ini-production
 
-COPY --link docker/php-fpm/php-fpm.d/process-pool.conf /usr/local/etc/php-fpm.d/process-pool.conf
-COPY --link docker/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.conf
+COPY --link docker/php/php-fpm/php-fpm.d/process-pool.conf /usr/local/etc/php-fpm.d/process-pool.conf
+COPY --link docker/php/php-fpm/php-fpm.conf /usr/local/etc/php-fpm.conf
+RUN touch /var/log/fpm-php.www.log && chmod 666 /var/log/fpm-php.www.log
 
-COPY --link docker/scripts/entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --link docker/php/scripts/entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
 COPY --link ./application ./
 
 ENTRYPOINT ["docker-entrypoint"]
 
-CMD ["php-fpm"]
+CMD ["php-fpm", "-F"]
 
 # obraz do developmentu
 FROM app_php-production AS app_php-development
 
 ENV APP_MODE=development
 
-COPY --link docker/php/development/php.ini /usr/local/etc/php/php.ini-development
+COPY --link docker/php/config/development/php.ini /usr/local/etc/php/php.ini-development
 
 FROM nginx:stable-bullseye AS app_nginx
 
