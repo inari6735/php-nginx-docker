@@ -7,8 +7,11 @@ ENV APP_MODE=production
 
 # oficjalne obrazy debiana automatycznie usuwają apt cache za pomocą apt-get clean
 # https://github.com/moby/moby/blob/03e2923e42446dbb830c654d0eec323a0b4ef02a/contrib/mkimage/debootstrap#L82-L105
+# instalacja zależności wymaganych przez composer
 RUN apt-get update && apt-get install -y \
-    curl \
+    file \
+    gettext \
+    git \
     ;
 
 WORKDIR /srv/app
@@ -17,10 +20,12 @@ WORKDIR /srv/app
 # pobranie instalatora z oficjalnego obrazu dockera
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-# instalacja rozszerzeń
+# instalacja rozszerzeń (rozszerzenie zip jest wymagane do instalacji composer)
 RUN set -eux; \
     install-php-extensions \
-      gd \
+      apcu \
+      opcache \
+      zip \
     ;
 
 COPY --link docker/php/config/production/php.ini /usr/local/etc/php/php.ini-production
@@ -32,7 +37,22 @@ RUN touch /var/log/fpm-php.www.log && chmod 666 /var/log/fpm-php.www.log
 COPY --link docker/php/scripts/entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
+COPY --from=composer/composer:2-bin --link /composer /usr/bin/composer
+
+COPY --link composer.* ./
+RUN set -eux; \
+    if [ -f composer.json ]; then \
+		composer install --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress; \
+		composer clear-cache; \
+    fi \
+
 COPY --link ./application ./
+
+RUN set -eux; \
+    if [ -f composer.json ]; then \
+		composer dump-autoload --classmap-authoritative --no-dev; \
+		composer dump-env prod; \
+    fi
 
 ENTRYPOINT ["docker-entrypoint"]
 
