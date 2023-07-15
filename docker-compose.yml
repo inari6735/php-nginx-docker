@@ -6,7 +6,11 @@ services:
       context: .
       target: app_php-production
     restart: unless-stopped
-#    volumes:
+    volumes:
+      - ./docker/php/config/production/php.ini:/usr/local/etc/php/php.ini-production:ro
+      - ./docker/php/config/development/php.ini:/usr/local/etc/php/php.ini-development:ro
+      - ./docker/php/php-fpm/php-fpm.d/process-pool.conf:/usr/local/etc/php-fpm.d/process-pool.conf:ro
+      - ./docker/php/php-fpm/php-fpm.conf:/usr/local/etc/php-fpm.conf:ro
 #      - ./php/logs/:/var/log/
     networks:
       - webapp
