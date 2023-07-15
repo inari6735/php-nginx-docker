@@ -1,4 +1,9 @@
+#!/bin/sh
 set -e
+
+if [ "${1#-}" != "$1" ]; then
+	set -- php-fpm "$@"
+fi
 
 PHP_INI_FILE="/usr/local/etc/php/php.ini-production"
 if [ "$APP_MODE" != 'production' ]; then
