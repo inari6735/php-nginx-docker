@@ -39,9 +39,6 @@ RUN touch /var/log/fpm-php.www.log && chmod 666 /var/log/fpm-php.www.log
 COPY --link docker/php/scripts/entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
 
-ENTRYPOINT ["docker-entrypoint"]
-CMD ["php-fpm", "-F"]
-
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY --from=composer/composer:2-bin --link /composer /usr/bin/composer
@@ -60,6 +57,10 @@ RUN set -eux; \
     if [ -f composer.json ]; then \
 		composer dump-autoload --classmap-authoritative --no-dev; \
     fi
+
+ENTRYPOINT ["docker-entrypoint"]
+
+CMD ["php-fpm", "-F"]
 
 # obraz do developmentu
 FROM app_php-production AS app_php-development
